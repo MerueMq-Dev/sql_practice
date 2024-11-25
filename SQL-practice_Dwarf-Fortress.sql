@@ -14,7 +14,8 @@ WHERE priority = (SELECT MAX(priority) FROM Tasks)
 AND Tasks.status = "pending";
 
 -- 4
-SELECT Dwarves.name FROM Dwarves, COUNT(Items.*) AS item_count
+SELECT Dwarves.name, COUNT(Items.*) AS item_count
+FROM Dwarves
 INNER JOIN Items 
     ON Dwarves.dwarf_id = Items.owner_id
 GROUP BY Dwarves.name
