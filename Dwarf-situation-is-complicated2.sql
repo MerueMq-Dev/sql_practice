@@ -109,11 +109,10 @@ SELECT mq.squad_id, mq.name, mq.formation_type, mq.leader_id,
         WHERE sq.squad_id = mq.squad_id
     ), JSON_ARRAY()),
     'equipment_ids', COALESCE((
-        SELECT JSON_ARRAYAGG(de.equipment_id ORDER BY de.equipment_id)
-        FROM squad_members sq
-        JOIN dwarf_equipment de ON sq.dwarf_id = de.dwarf_id      
-        WHERE sq.squad_id = mq.squad_id
-    ), JSON_ARRAY()),
+        SELECT JSON_ARRAYAGG(se.equipment_id ORDER BY so.operation_id)
+        FROM squad_equipment se
+        WHERE se.squad_id = s.squad_id
+        ), JSON_ARRAY()),
     'operation_ids', COALESCE((
         SELECT JSON_ARRAYAGG(so.operation_id ORDER BY so.operation_id)
         FROM squad_operations so      
