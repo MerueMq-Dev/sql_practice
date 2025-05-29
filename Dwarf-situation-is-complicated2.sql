@@ -75,9 +75,9 @@ SELECT w.workshop_id, w.name, w.type, w.quality,
         WHERE wm.workshop_id = w.workshop_id AND wm.is_input
     ), JSON_ARRAY()),
     'output_product_ids', COALESCE((
-        SELECT JSON_ARRAYAGG(wm.material_id ORDER BY wm.material_id)
-        FROM workshop_materials wm    
-        WHERE wm.workshop_id = w.workshop_id AND NOT wm.is_input
+        SELECT JSON_ARRAYAGG(wp.product_id)
+        FROM workshop_products wp
+        WHERE wp.workshop_id = w.workshop_id
     ), JSON_ARRAY())
     )
     AS related_entities
@@ -109,9 +109,9 @@ SELECT mq.squad_id, mq.name, mq.formation_type, mq.leader_id,
         WHERE sq.squad_id = mq.squad_id
     ), JSON_ARRAY()),
     'equipment_ids', COALESCE((
-        SELECT JSON_ARRAYAGG(se.equipment_id ORDER BY so.operation_id)
+        SELECT JSON_ARRAYAGG(se.equipment_id ORDER BY se.equipment_id)
         FROM squad_equipment se
-        WHERE se.squad_id = s.squad_id
+        WHERE se.squad_id = mq.squad_id
         ), JSON_ARRAY()),
     'operation_ids', COALESCE((
         SELECT JSON_ARRAYAGG(so.operation_id ORDER BY so.operation_id)
