@@ -109,4 +109,4 @@ LEFT JOIN (
 ) skills_data ON e.expedition_id = skills_data.expedition_id  
 
 WHERE e.status = 'Completed'
-ORDER BY e.expedition_id
+ORDER BY e.expedition_idя
