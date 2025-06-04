@@ -110,7 +110,7 @@ SELECT w.workshop_id,
     END AS value_per_material_unit,
     CASE 
         WHEN mc.total_materials_consumed > 0 THEN 
-            ROUND(CAST(ps.total_quantity_produced AS DECIMAL) / mc.total_materials_consumed, 2)
+            ROUND(CAST(ps.total_quantity_produced::DECIMAL) / mc.total_materials_consumed, 2)
         ELSE 0.0
     END AS material_conversion_ratio,
     COALESCE(c.skill_quality_correlation, 0) AS skill_quality_correlation,
