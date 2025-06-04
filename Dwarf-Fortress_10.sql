@@ -23,7 +23,7 @@
 --   }
 -- ]
 
-workshop_craftsmen AS (
+WITH workshop_craftsmen AS (
     SELECT 
         w.workshop_id AS workshop_id,
         COUNT(DISTINCT wc.dwarf_id) as num_craftsdwarves,
@@ -31,9 +31,8 @@ workshop_craftsmen AS (
     FROM WORKSHOPS w
     LEFT JOIN WORKSHOP_CRAFTSDWARVES wc ON w.workshop_id = wc.workshop_id
     LEFT JOIN DWARF_SKILLS ds ON wc.dwarf_id = ds.dwarf_id
-    GROUP BY w.workshop_id,
-)
-
+    GROUP BY w.workshop_id
+),
 production_stats AS (
     SELECT 
         w.workshop_id,
@@ -44,7 +43,7 @@ production_stats AS (
     LEFT JOIN WORKSHOP_PRODUCTS wp ON w.workshop_id = wp.workshop_id
     LEFT JOIN PRODUCTS p ON wp.product_id = p.product_id
     GROUP BY w.workshop_id
-)
+),
 material_consumption AS (
     SELECT 
         w.workshop_id,
@@ -52,8 +51,8 @@ material_consumption AS (
     FROM WORKSHOPS w
     LEFT JOIN WORKSHOP_MATERIALS wm ON w.workshop_id = wm.workshop_id
     GROUP BY w.workshop_id
-)
-WITH paired_data AS (
+),
+paired_data AS (
     SELECT 
         w.workshop_id,
         ds.level AS skill_level,
@@ -140,5 +139,6 @@ SELECT w.workshop_id,
 FROM WORKSHOPS w
 LEFT JOIN workshop_craftsmen wc ON w.workshop_id = wc.workshop_id 
 LEFT JOIN production_stats ps ON w.workshop_id = ps.workshop_id 
-LEFT JOIN material_consumption mc ON w.workshop_id = ps.workshop_id 
-LEFT JOIN correlations c ON w.workshop_id = c.workshop_id;
+LEFT JOIN material_consumption mc ON w.workshop_id = mc.workshop_id 
+LEFT JOIN correlations c ON w.workshop_id = c.workshop_id
+ORDER BY w.workshop_id
