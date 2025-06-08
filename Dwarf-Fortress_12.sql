@@ -31,10 +31,10 @@
 
 WITH members_data AS (
     SELECT sm.squad_id, 
-        SUM(CASE WHEN sm.exit_date IS NOT NULL THEN 1 ELSE 0 END) AS current_members,
+        SUM(CASE WHEN sm.exit_date IS NULL THEN 1 ELSE 0 END) AS current_members,
         COUNT(sm.dwarf_id) AS total_members,
          ROUND(
-            COUNT(CASE WHEN sm.exit_date IS NULL THEN 1 END) * 100.0 / 
+            SUM(CASE WHEN sm.exit_date IS NULL THEN 1 ELSE 0 END) * 100.0 / 
             NULLIF(COUNT(sm.dwarf_id), 0), 2
         ) AS retention_rate,
     FROM squad_members sm
@@ -50,7 +50,7 @@ battles_data AS (
             ) AS victory_percentage,
         SUM(sb.casualties) AS squad_casualties,
         SUM(sb.enemy_casualties) AS enemy_casualties,
-        SUM(sb.enemy_casualties) / SUM(sb.casualties) AS casualty_exchange_ratio,
+        COALESCE(SUM(sb.enemy_casualties) / NULLIF(SUM(sb.casualties), 0), 0) AS casualty_exchange_ratio,
         COALESCE(JSON_ARRAYAGG(sb.report_id ORDER BY sb.report_id), JSON_ARRAY()) AS battle_report_ids
     FROM squad_battles sb 
     GROUP BY sb.squad_id       
@@ -135,7 +135,7 @@ SELECT ms.squad_id,
         ), 3) AS overall_effectiveness_score,
         JSON_OBJECT(
         'member_ids', (
-            SELECT COALESCE(JSON_ARRAYAGG(sm.dwarf_id WHERE sm.exit_date IS NULL ORDER BY sm.dwarf_id), JSON_ARRAY())
+            SELECT COALESCE(JSON_ARRAYAGG(sm.dwarf_id ORDER BY sm.dwarf_id), JSON_ARRAY())
             FROM squad_members sm 
             WHERE sm.squad_id = ms.squad_id AND sm.exit_date IS NULL           
         ),
@@ -151,3 +151,4 @@ LEFT JOIN equipment_data ed ON ed.squad_id = ms.squad_id
 LEFT JOIN members_data md ON md.squad_id = ms.squad_id
 LEFT JOIN correlation_data cd ON cd.squad_id = ms.squad_id
 LEFT JOIN skill_improvement_data si ON  si.squad_id = ms.squad_id
+ORDER BY ms.squad_id, bd.total_battles, bd.victories
